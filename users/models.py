@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import Group, Permission
+
+from main.services import create_manager
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -18,14 +19,4 @@ class User(AbstractUser):
 
 
 # Создаем группу модераторов
-moderator_group, created = Group.objects.get_or_create(name='manager')
-
-# Определяем доступы
-can_cancel_product = Permission.objects.get(codename='set_is_published')
-can_change_product_description = Permission.objects.get(codename='set_description')
-can_change_product_category = Permission.objects.get(codename='set_category')
-
-# Добавляем доступы к группе модераторов
-moderator_group.permissions.add(can_cancel_product)
-moderator_group.permissions.add(can_change_product_description)
-moderator_group.permissions.add(can_change_product_category)
+create_manager()
