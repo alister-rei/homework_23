@@ -1,0 +1,50 @@
+{% load my_tags %}
+
+<div class="col">
+    <div class="card h-100">
+        <img src="{{ object.image|my_media_filter }}" class="card-img-top" width="180" height="220">
+        <div class="card-body">
+            <h5 class="card-title">{{ object.name|title }}</h5>
+            {% if object.active_version_number %}
+            <small class="text-body-secondary">Текущая версия - {{ object.active_version_number }}</small>
+            {% endif %}
+            <p class="card-text">{{ object.description|truncatechars:100 }}</p>
+            <div>
+                {% if object.is_published %}
+                <small class="text-success">Статус товара - Опубликован</small>
+                {% else %}
+                <small class="text-danger">Статус товара - На модерации</small>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'catalog:view' object.pk %}" type="button" class="btn btn-sm btn-outline-secondary">
+                К продукту</a>
+            {% if request.user.is_authenticated %}
+
+            {% if user == object.owner or user.is_superuser %}
+            <a href="{% url 'catalog:edit' object.pk %}" type="button"
+               class="btn btn-sm btn-outline-secondary">update</a>
+            <a href="{% url 'catalog:delete' object.pk %}" type="button"
+               class="btn btn-sm btn-outline-secondary">delete</a>
+            {% endif %}
+
+            {% if user|has_group:"manager" %}
+            <a href="{% url 'catalog:moderating' object.pk %}" type="button" class="btn btn-sm btn-outline-secondary">
+                Moderating</a>
+            {% endif %}
+            {% endif %}
+
+            {% if user.is_staff %}
+            {% if object.is_published %}
+            <a href="{% url 'catalog:toggle_active' object.pk %}" type="button"
+               class="btn btn-success">Опубликовано</a>
+            {% else %}
+            <a href="{% url 'catalog:toggle_active' object.pk %}" type="button"
+               class="btn btn-danger">На модерации</a>
+            {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+</div>
