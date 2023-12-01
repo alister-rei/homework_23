@@ -1,26 +1,20 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetDoneView
+from django.contrib.auth.models import Group
 
-from django.core.mail import send_mail
-from django.http import Http404
 from django.utils.crypto import get_random_string
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, UpdateView, TemplateView, ListView
 from django.urls import reverse_lazy, reverse
 
-from config import settings
+from main.services import send_verify_code, mail_sender
 from users.forms import UserRegisterForm, UserProfileForm
-from users.models import User, Group
+from users.models import User
 from django.shortcuts import redirect, render
 from django.contrib.auth import login
-
-
-def is_member(user):
-    return user.groups.filter(name='manager').exists()
 
 
 class RegisterView(CreateView):
@@ -33,20 +27,8 @@ class RegisterView(CreateView):
         user = form.save()
         user.is_active = False
         user.save()
+        send_verify_code(user)
 
-        # формируем токен и ссылку для подтверждения регистрации
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        activation_url = reverse_lazy('users:confirm_email', kwargs={'uidb64': uid, 'token': token})
-
-        current_site = '127.0.0.1:8000'
-
-        send_mail(
-            subject='Регистрация на платформе',
-            message=f"Завершите регистрацию, перейдя по ссылке: http://{current_site}{activation_url}",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[user.email]
-        )
         return redirect('users:email_confirmation_sent')
 
 
@@ -134,12 +116,11 @@ def generate_new_password(request):
     """ Генерирует новый пароль пользователя """
     new_password = get_random_string(length=9)
 
-    send_mail(
-        subject='Новый пароль',
-        message=f'Ваш новый пароль: {new_password}',
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[request.user.email]
-    )
+    subject = 'Новый пароль'
+    message = f'Ваш новый пароль: {new_password}'
+    email = request.user.email
+
+    mail_sender(subject, message, email)
 
     request.user.set_password(new_password)
     request.user.save()
@@ -162,12 +143,11 @@ def regenerate_password(request):
         user.save()
 
         # Отправляем письмо с новым паролем
-        send_mail(
-            subject='Восстановление пароля',
-            message=f'Ваш новый пароль: {new_password}',
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-        )
+        subject = 'Восстановление пароля'
+        message = f'Ваш новый пароль: {new_password}'
+        email = request.user.email
+
+        mail_sender(subject, message, email)
 
         return redirect(reverse('users:main'))
     return render(request, 'users/regenerate_password.html')
