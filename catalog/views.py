@@ -8,7 +8,7 @@ from catalog.models import Product, Version
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-from main.services import is_member
+from main.services import is_member, get_categories
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
@@ -125,6 +125,8 @@ class ProductListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(ProductListView, self).get_context_data(**kwargs)
+        categories = get_categories()
+        context['categories'] = categories
         for product in context['object_list']:
             active_version = product.version_set.filter(is_current=True).first()
             if active_version:
