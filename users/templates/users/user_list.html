@@ -1,0 +1,65 @@
+{% extends 'main/base.html' %}
+{% load my_tags %}
+{% block content %}
+
+{% if request.user.is_superuser %}
+<div class="text-center container">
+    <a class="btn btn-primary" href="{% url 'users:create_moderator' %}" type="button">Create moderator</a>
+</div>
+{% endif %}
+
+<div class="container text-center">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">id Пользователя</th>
+            <th scope="col">Почта</th>
+            <th scope="col">страна</th>
+            <th scope="col">телефон</th>
+            {% if request.user.is_superuser %}
+            <th scope="col">Group</th>
+            {% endif %}
+            <th scope="col">Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for user in object_list %}
+        {% if not user.is_superuser %}
+
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ user.pk }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.country }}</td>
+            <td>{{ user.phone }}</td>
+            {% if request.user.is_superuser %}
+            <td>
+                {% if user|has_group:"manager" %}
+                Manager
+                {% else %}
+                None
+                {% endif %}
+            </td>
+            {% endif %}
+            {% if user.is_active %}
+            <td>
+                <a href="{% url 'users:toggle_active' user.pk %}" type="button"
+                   class="btn btn-success">True</a>
+            </td>
+            {% else %}
+            <td>
+                <a href="{% url 'users:toggle_active' user.pk %}" type="button"
+                   class="btn btn-danger">False</a>
+            </td>
+        </tr>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
