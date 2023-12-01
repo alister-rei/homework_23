@@ -8,9 +8,7 @@ from catalog.models import Product, Version
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-
-def is_member(user):
-    return user.groups.filter(name='manager').exists()
+from main.services import is_member, get_categories
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
@@ -41,8 +39,9 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if not self.request.user.is_superuser or not is_member(self.request.user):
-            if self.object.owner != self.request.user:
+        user = self.request.user
+        if not user.is_superuser:
+            if self.object.owner != user or is_member(user):
                 raise Http404
         return self.object
 
@@ -126,6 +125,8 @@ class ProductListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(ProductListView, self).get_context_data(**kwargs)
+        categories = get_categories()
+        context['categories'] = categories
         for product in context['object_list']:
             active_version = product.version_set.filter(is_current=True).first()
             if active_version:
@@ -181,8 +182,9 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if not self.request.user.is_superuser:
-            if self.object.owner != self.request.user or is_member(self.request.user):
+        user = self.request.user
+        if not user.is_superuser:
+            if self.object.owner != user or is_member(user):
                 raise Http404
         return self.object
 

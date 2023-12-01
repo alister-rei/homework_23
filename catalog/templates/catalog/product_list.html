@@ -10,6 +10,15 @@
 {% endif %}
 {% endif %}
 
+<div class="col-12">
+    <h3>Категории:
+        {% for object in categories %}
+        {{object}},
+        {% endfor %}
+    </h3>
+</div>
+
+
 <div class="container mt-5">
     <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for object in object_list %}

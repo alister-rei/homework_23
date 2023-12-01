@@ -5,10 +5,7 @@ from django.views.generic import CreateView, ListView, DetailView, UpdateView, D
 from pytils.translit import slugify
 
 from blog.models import Post
-
-
-def is_member(user):
-    return user.groups.filter(name='manager').exists()
+from main.services import is_member
 
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
@@ -41,8 +38,9 @@ class BlogUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if not self.request.user.is_superuser:
-            if self.object.owner != self.request.user or is_member(self.request.user):
+        user = self.request.user
+        if not user.is_superuser:
+            if self.object.owner != user or is_member(user):
                 raise Http404
         return self.object
 
@@ -105,7 +103,8 @@ class BlogDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if not self.request.user.is_superuser:
-            if self.object.owner != self.request.user or is_member(self.request.user):
+        user = self.request.user
+        if not user.is_superuser:
+            if self.object.owner != user or is_member(user):
                 raise Http404
         return self.object
