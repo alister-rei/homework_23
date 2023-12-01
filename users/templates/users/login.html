@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<div class="text-center container">
+    <div class="card col-8">
+        <form method="post" enctype="multipart/form-data">
+
+            <div class="card-header">
+                <h4 class="card-title">Вход</h4>
+            </div>
+            <div class="card-body">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </div>
+            <div class="card-footer">
+
+                <a class="p-2 btn btn-outline-primary" href="{% url 'users:register' %}">Регистрация</a>
+
+                <h5>Сгенирировать пароль на почту если забыли пароль</h5>
+                <a href="{% url 'users:regenerate_password' %}" type="button" class="btn btn-sm btn-outline-secondary">Сгенирировать
+                    пароль</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

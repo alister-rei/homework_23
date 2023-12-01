@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+{% load my_tags %}
+{% block content %}
+
+{% if request.user.is_authenticated %}
+{% if not user|has_group:"manager" %}
+<div class="text-center container">
+    <a class="btn btn-primary" href="{% url 'catalog:create' %}" type="button">Create Product</a>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="container mt-5">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for object in object_list %}
+        {% include 'catalog/includes/inc_product.html' %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'main/base.html' %}
+{% block content %}
+{% load my_tags %}
+
+<div class="text-center container">
+    <div class="card mb-3">
+        <div class="col">
+            <div class="card shadow-sm">
+                <img src="{% my_media_tag product.image %}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name|title }}</h5>
+                    <h6 class="card-subtitle mb-3 text-body-secondary">{{ product.slug}}</h6>
+                    <h6 class="card-subtitle mb-3 text-body-secondary">{{ product.category|title }}</h6>
+                    <p class="card-text mb-3">{{ product.description }}</p>
+
+                    <h5 class="card-title mb-3">{{ product.price }}</h5>
+                    <a href="{% url 'catalog:list' %}" type="button"
+                       class="btn btn-sm btn-outline-secondary mb-3">Back to producy list</a>
+                    <div class="row">
+                        <a>
+                            <small class="text-body-secondary">Created at {{ product.created_at }}</small>
+                            <small class="text-body-secondary">Last updated {{ product.updated_at }}</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
