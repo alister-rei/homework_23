@@ -1,10 +1,12 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group, Permission
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from catalog.models import Category
 from config import settings
 
 
@@ -50,4 +52,17 @@ def create_manager():
     moderator_group.permissions.add(can_cancel_product)
     moderator_group.permissions.add(can_change_product_description)
     moderator_group.permissions.add(can_change_product_category)
+
+def get_categories():
+    # Сначала попробуйте получить данные из кеша
+    categories = cache.get('categories')
+
+    # Если данные не найдены в кеше, выполните выборку из базы данных
+    if categories is None:
+        categories = Category.objects.all()
+
+        # Сохраните результаты выборки в кеше на определенное время (например, на 1 час)
+        cache.set('categories', categories, 3600)
+
+    return categories
 
