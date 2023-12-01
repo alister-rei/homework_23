@@ -16,10 +16,8 @@
 
 ## В файле `users/management/commands/csu.py` команда для создания суперпользователя с паролем 12345 . запустить команду `python manage.py csu`
 
-## Запустить крон в ручную командой `python manage.py crontab add`.
-
-## Запустить Рассылку командой `python manage.py cron_mailing`.
-
 ## Загрузить тестовые статьи из блога `python manage.py loaddata blog_data.json`.
 
-## Создать группу пользователей `manager` . Добавить пользователя в группу для назначения его менеджером.
+## Загрузить тестовые продукты из каталога `python manage.py loaddata catalog_dеata.json`.
+
+## Зайдя суперпользователем во вкладке `Users` есть кнопка для создания модератора
