@@ -55,7 +55,7 @@ class MainPage(TemplateView):
 class ContactsPageView(View):
     def get(self, request):
         context = {'title': 'Контакты'}
-        return render(request, 'catalog/contacts.html', context)
+        return render(request, 'main/contacts.html', context)
 
     def post(self, request):
         name = request.POST.get('name')
